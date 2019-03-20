@@ -35,10 +35,38 @@ class FirstForm(QWidget):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_PageDown:
-            self.edit2.setText(str(max(0, int(self.edit2.text()) - 1)))
+            self.edit2.setText(str(max(0, int(self.edit2.text()) + 1)))
             self.show_map()
         elif event.key() == Qt.Key_PageUp:
-            self.edit2.setText(str(min(17, int(self.edit2.text()) + 1)))
+            self.edit2.setText(str(min(17, int(self.edit2.text()) - 1)))
+            self.show_map()
+        elif event.key() == Qt.Key_S:
+            z = float(self.edit2.text())
+            x, y = map(float, self.edit.text().split(','))
+            y -= 178.25792 / (2 ** (z - 1))
+            y = max(-85, y)
+            self.edit.setText(f'{x},{y}')
+            self.show_map()
+        elif event.key() == Qt.Key_W:
+            z = float(self.edit2.text())
+            x, y = map(float, self.edit.text().split(','))
+            y += 178.25792 / (2 ** (z - 1))
+            y = min(85, y)
+            self.edit.setText(f'{x},{y}')
+            self.show_map()
+        elif event.key() == Qt.Key_A:
+            z = float(self.edit2.text())
+            x, y = map(float, self.edit.text().split(','))
+            x -= 422.4 / (2 ** (z - 1))
+            x = max(-180, x)
+            self.edit.setText(f'{x},{y}')
+            self.show_map()
+        elif event.key() == Qt.Key_D:
+            z = float(self.edit2.text())
+            x, y = map(float, self.edit.text().split(','))
+            x += 422.4 / (2 ** (z - 1))
+            x = min(180, x)
+            self.edit.setText(f'{x},{y}')
             self.show_map()
 
 
