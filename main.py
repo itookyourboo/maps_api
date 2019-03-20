@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 import nigga
 import os
 
@@ -31,6 +32,14 @@ class FirstForm(QWidget):
         image = nigga.give_me_an_image(self.edit.text(), self.edit2.text())
         self.label.setPixmap(QPixmap(image))
         self.label.resize(self.label.sizeHint())
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_PageDown:
+            self.edit2.setText(str(max(0, int(self.edit2.text()) - 1)))
+            self.show_map()
+        elif event.key() == Qt.Key_PageUp:
+            self.edit2.setText(str(min(17, int(self.edit2.text()) + 1)))
+            self.show_map()
 
 
 if __name__ == '__main__':
