@@ -3,7 +3,7 @@ import os
 import sys
 
 
-def give_me_an_image(coords, zoom, layer_type):
+def give_me_an_image(coords, zoom, layer_type, point=None):
     response = None
     try:
         payload = {
@@ -12,6 +12,8 @@ def give_me_an_image(coords, zoom, layer_type):
             'z': zoom,
             'l': layer_type
         }
+        if point:
+            payload['pt'] = point
         map = "http://static-maps.yandex.ru/1.x"
         response = requests.get(map, params=payload)
 
@@ -34,3 +36,43 @@ def give_me_an_image(coords, zoom, layer_type):
         sys.exit(2)
 
     return map_file
+
+
+def find_object(object):
+    url = "http://geocode-maps.yandex.ru/1.x"
+    payload = {
+        "geocode": object,
+        "format": "json"
+    }
+    response = requests.get(url, params=payload).json()
+    toponym = response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+    toponym_coodrinates = toponym["Point"]["pos"].replace(" ", ",")
+
+    try:
+        payload = {
+            'apikey': 'd1439a14-b3fc-44e5-a9f7-c121f92cbe63',
+            'll': toponym_coodrinates,
+            'pt': toponym_coodrinates,
+            'l': 'map'
+        }
+        map = "http://static-maps.yandex.ru/1.x"
+        response = requests.get(map, params=payload)
+
+        if not response:
+            print("Ошибка выполнения запроса:")
+            print(map)
+            print("Http статус:", response.status_code, "(", response.reason, ")")
+            sys.exit(1)
+    except:
+        print("Запрос не удалось выполнить. Проверьте наличие сети Интернет.")
+        sys.exit(1)
+
+    map_file = "map.png"
+    try:
+        with open(map_file, "wb") as file:
+            file.write(response.content)
+    except IOError as ex:
+        print("Ошибка записи временного файла:", ex)
+        sys.exit(2)
+
+    return map_file, toponym_coodrinates

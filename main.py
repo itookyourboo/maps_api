@@ -12,6 +12,7 @@ class FirstForm(QMainWindow):
     def __init__(self):
         super().__init__()
         self.layer_type = 'map'
+        self.point = None
 
         self.setGeometry(300, 300, 800, 600)
         self.setWindowTitle('maps api')
@@ -58,20 +59,27 @@ class FirstForm(QMainWindow):
         self.edit2.setText("4")
         self.edit2.move(20, 90)
 
+        self.edit3 = QLineEdit(self)
+        self.edit3.move(240, 40)
+
+        self.btn3 = QPushButton("Искать", self)
+        self.btn3.move(350, 40)
+        self.btn3.clicked.connect(self.search)
+
         self.label = QLabel(self)
         self.label.move(0, 140)
 
     def show_map(self):
-        image = nigga.give_me_an_image(self.edit.text(), self.edit2.text(), self.layer_type)
+        image = nigga.give_me_an_image(self.edit.text(), self.edit2.text(), self.layer_type, point=self.point)
         self.label.setPixmap(QPixmap(image))
         self.label.resize(self.label.sizeHint())
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_PageDown:
-            self.edit2.setText(str(max(0, int(self.edit2.text()) + 1)))
+            self.edit2.setText(str(min(17, int(self.edit2.text()) + 1)))
             self.show_map()
         elif event.key() == Qt.Key_PageUp:
-            self.edit2.setText(str(min(17, int(self.edit2.text()) - 1)))
+            self.edit2.setText(str(max(0, int(self.edit2.text()) - 1)))
             self.show_map()
         elif event.key() == Qt.Key_S:
             z = float(self.edit2.text())
@@ -105,6 +113,14 @@ class FirstForm(QMainWindow):
     def change_layer(self, type):
         self.layer_type = type
         self.show_map()
+
+    def search(self):
+        search = self.edit3.text()
+        image, coords = nigga.find_object(search)
+        self.point = coords
+        self.edit.setText(coords)
+        self.label.setPixmap(QPixmap(image))
+        self.label.resize(self.label.sizeHint())
 
 
 if __name__ == '__main__':
