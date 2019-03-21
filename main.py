@@ -96,7 +96,7 @@ class FirstForm(QMainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_PageDown:
-            self.edit2.setText(str(min(17, int(self.edit2.text()) + 1)))
+            self.edit2.setText(str(min(19, int(self.edit2.text()) + 1)))
         elif event.key() == Qt.Key_PageUp:
             self.edit2.setText(str(max(0, int(self.edit2.text()) - 1)))
         else:
@@ -128,12 +128,11 @@ class FirstForm(QMainWindow):
 
     def search(self):
         search = self.edit3.text()
-        image, coords, self.address_text, self.index_text = nigga.find_object(search)
+        coords, self.address_text, self.index_text = nigga.find_object(search)
         self.point = coords
         self.edit.setText(coords)
         self.display_address()
-        self.label.setPixmap(QPixmap(image))
-        self.label.resize(self.label.sizeHint())
+        self.show_map()
 
     def reset(self):
         self.point = None
