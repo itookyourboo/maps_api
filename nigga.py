@@ -46,6 +46,7 @@ def find_object(object):
     }
     response = requests.get(url, params=payload).json()
     toponym = response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+    toponym_address = toponym["metaDataProperty"]["GeocoderMetaData"]["text"]
     toponym_coodrinates = toponym["Point"]["pos"].replace(" ", ",")
 
     try:
@@ -75,4 +76,4 @@ def find_object(object):
         print("Ошибка записи временного файла:", ex)
         sys.exit(2)
 
-    return map_file, toponym_coodrinates
+    return map_file, toponym_coodrinates, toponym_address

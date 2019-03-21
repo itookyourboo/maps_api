@@ -74,6 +74,10 @@ class FirstForm(QMainWindow):
         self.btn4.resize(210, 30)
         self.btn4.clicked.connect(self.reset)
 
+        self.address = QLabel(self)
+        self.address.move(search_x, 105)
+        self.address.setText("")
+
         self.label = QLabel(self)
         self.label.move(0, 140)
 
@@ -124,15 +128,18 @@ class FirstForm(QMainWindow):
 
     def search(self):
         search = self.edit3.text()
-        image, coords = nigga.find_object(search)
+        image, coords, address = nigga.find_object(search)
         self.point = coords
         self.edit.setText(coords)
+        self.address.setText(address)
+        self.address.resize(self.address.sizeHint())
         self.label.setPixmap(QPixmap(image))
         self.label.resize(self.label.sizeHint())
 
     def reset(self):
         self.point = None
         self.edit3.setText("")
+        self.address.setText("")
         self.show_map()
 
 
