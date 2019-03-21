@@ -46,25 +46,33 @@ class FirstForm(QMainWindow):
         # self.menubar.addAction(self.settings.menuAction())
         self.menubar.addAction(self.layer.menuAction())
 
+        ok_x, search_x = 170, 260
+
         self.btn = QPushButton("ОК", self)
-        self.btn.move(150, 40)
+        self.btn.move(ok_x, 40)
         self.btn.resize(80, 52)
         self.btn.clicked.connect(self.show_map)
 
         self.edit = QLineEdit(self)
         self.edit.setText("55.02131,30.23123")
         self.edit.move(20, 40)
+        self.edit.resize(140, 40)
 
         self.edit2 = QLineEdit(self)
         self.edit2.setText("4")
         self.edit2.move(20, 90)
 
         self.edit3 = QLineEdit(self)
-        self.edit3.move(240, 40)
+        self.edit3.move(search_x, 40)
 
         self.btn3 = QPushButton("Искать", self)
-        self.btn3.move(350, 40)
+        self.btn3.move(search_x + 110, 40)
         self.btn3.clicked.connect(self.search)
+
+        self.btn4 = QPushButton("Сброс поискового результата", self)
+        self.btn4.move(search_x, 70)
+        self.btn4.resize(210, 30)
+        self.btn4.clicked.connect(self.reset)
 
         self.label = QLabel(self)
         self.label.move(0, 140)
@@ -121,6 +129,11 @@ class FirstForm(QMainWindow):
         self.edit.setText(coords)
         self.label.setPixmap(QPixmap(image))
         self.label.resize(self.label.sizeHint())
+
+    def reset(self):
+        self.point = None
+        self.edit3.setText("")
+        self.show_map()
 
 
 if __name__ == '__main__':
