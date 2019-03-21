@@ -1,7 +1,8 @@
 import sys
 from functools import partial
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QMainWindow, QCheckBox
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QMainWindow, \
+    QCheckBox
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 import nigga
@@ -14,7 +15,7 @@ class FirstForm(QMainWindow):
         self.layer_type = 'map'
         self.point = None
 
-        self.setGeometry(300, 300, 800, 600)
+        self.setGeometry(300, 300, 600, 600)
         self.setWindowTitle('maps api')
 
         self.menubar = QtWidgets.QMenuBar(self)
@@ -77,6 +78,8 @@ class FirstForm(QMainWindow):
         self.cb = QCheckBox('Почтовый индекс', self)
         self.cb.resize(self.cb.sizeHint())
         self.cb.move(search_x + 215, 40)
+        self.cb.stateChanged.connect(self.display_address)
+        self.address_text = self.index_text = ''
 
         self.address = QLabel(self)
         self.address.move(search_x, 105)
@@ -86,45 +89,38 @@ class FirstForm(QMainWindow):
         self.label.move(0, 140)
 
     def show_map(self):
-        image = nigga.give_me_an_image(self.edit.text(), self.edit2.text(), self.layer_type, point=self.point)
+        image = nigga.give_me_an_image(self.edit.text(), self.edit2.text(), self.layer_type,
+                                       point=self.point)
         self.label.setPixmap(QPixmap(image))
         self.label.resize(self.label.sizeHint())
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_PageDown:
             self.edit2.setText(str(min(17, int(self.edit2.text()) + 1)))
-            self.show_map()
         elif event.key() == Qt.Key_PageUp:
             self.edit2.setText(str(max(0, int(self.edit2.text()) - 1)))
-            self.show_map()
-        elif event.key() == Qt.Key_S:
+        else:
             z = float(self.edit2.text())
             x, y = map(float, self.edit.text().split(','))
-            y -= 178.25792 / (2 ** (z - 1))
-            y = max(-85, y)
+            if event.key() == Qt.Key_S:
+                y = max(-85, y - 178.25792 / (2 ** (z - 1)))
+            elif event.key() == Qt.Key_W:
+                y = min(85, y + 178.25792 / (2 ** (z - 1)))
+            elif event.key() == Qt.Key_A:
+                x = max(-180, x - 422.4 / (2 ** (z - 1)))
+            elif event.key() == Qt.Key_D:
+                x = min(180, x + 422.4 / (2 ** (z - 1)))
+            else:
+                return
             self.edit.setText(f'{x},{y}')
-            self.show_map()
-        elif event.key() == Qt.Key_W:
-            z = float(self.edit2.text())
-            x, y = map(float, self.edit.text().split(','))
-            y += 178.25792 / (2 ** (z - 1))
-            y = min(85, y)
-            self.edit.setText(f'{x},{y}')
-            self.show_map()
-        elif event.key() == Qt.Key_A:
-            z = float(self.edit2.text())
-            x, y = map(float, self.edit.text().split(','))
-            x -= 422.4 / (2 ** (z - 1))
-            x = max(-180, x)
-            self.edit.setText(f'{x},{y}')
-            self.show_map()
-        elif event.key() == Qt.Key_D:
-            z = float(self.edit2.text())
-            x, y = map(float, self.edit.text().split(','))
-            x += 422.4 / (2 ** (z - 1))
-            x = min(180, x)
-            self.edit.setText(f'{x},{y}')
-            self.show_map()
+        self.show_map()
+
+    def display_address(self):
+        if self.cb.isChecked() and self.index_text:
+            self.address.setText(', '.join([self.address_text, self.index_text]))
+        else:
+            self.address.setText(self.address_text)
+        self.address.resize(self.address.sizeHint())
 
     def change_layer(self, type):
         self.layer_type = type
@@ -132,11 +128,10 @@ class FirstForm(QMainWindow):
 
     def search(self):
         search = self.edit3.text()
-        image, coords, address = nigga.find_object(search, postal_code=self.cb.checkState())
+        image, coords, self.address_text, self.index_text = nigga.find_object(search)
         self.point = coords
         self.edit.setText(coords)
-        self.address.setText(address)
-        self.address.resize(self.address.sizeHint())
+        self.display_address()
         self.label.setPixmap(QPixmap(image))
         self.label.resize(self.label.sizeHint())
 
@@ -144,6 +139,7 @@ class FirstForm(QMainWindow):
         self.point = None
         self.edit3.setText("")
         self.address.setText("")
+        self.address_text = self.index_text = ''
         self.show_map()
 
 
