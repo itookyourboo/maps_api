@@ -38,7 +38,7 @@ def give_me_an_image(coords, zoom, layer_type, point=None):
     return map_file
 
 
-def find_object(object):
+def find_object(object, postal_code=True):
     url = "http://geocode-maps.yandex.ru/1.x"
     payload = {
         "geocode": object,
@@ -47,6 +47,12 @@ def find_object(object):
     response = requests.get(url, params=payload).json()
     toponym = response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
     toponym_address = toponym["metaDataProperty"]["GeocoderMetaData"]["text"]
+    if postal_code:
+        try:
+            index = toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
+        except:
+            index = ""
+        toponym_address += ", " + index
     toponym_coodrinates = toponym["Point"]["pos"].replace(" ", ",")
 
     try:

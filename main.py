@@ -1,7 +1,7 @@
 import sys
 from functools import partial
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QMainWindow
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QMainWindow, QCheckBox
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 import nigga
@@ -74,6 +74,10 @@ class FirstForm(QMainWindow):
         self.btn4.resize(210, 30)
         self.btn4.clicked.connect(self.reset)
 
+        self.cb = QCheckBox('Почтовый индекс', self)
+        self.cb.resize(self.cb.sizeHint())
+        self.cb.move(search_x + 215, 40)
+
         self.address = QLabel(self)
         self.address.move(search_x, 105)
         self.address.setText("")
@@ -128,7 +132,7 @@ class FirstForm(QMainWindow):
 
     def search(self):
         search = self.edit3.text()
-        image, coords, address = nigga.find_object(search)
+        image, coords, address = nigga.find_object(search, postal_code=self.cb.checkState())
         self.point = coords
         self.edit.setText(coords)
         self.address.setText(address)
