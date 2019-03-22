@@ -26,16 +26,7 @@ def give_me_an_image(coords, zoom, layer_type, point=None):
         print("Запрос не удалось выполнить. Проверьте наличие сети Интернет.")
         sys.exit(1)
 
-    form = 'png' if layer_type != 'sat' else 'jpg'
-    map_file = "map." + form
-    try:
-        with open(map_file, "wb") as file:
-            file.write(response.content)
-    except IOError as ex:
-        print("Ошибка записи временного файла:", ex)
-        sys.exit(2)
-
-    return map_file
+    return response.content
 
 
 def find_object(object):
@@ -65,7 +56,8 @@ def find_orginization(coords):
         "ll": coords,
         'spn': ','.join(map(str, calculate_spn(list(map(float, coords.split(',')))))),
         'rspn': '1',
-        "type": "biz"
+        "type": "biz",
+        'results': '50'
     }
     try:
         response = requests.get(search_api_server, params=search_params)
@@ -103,5 +95,5 @@ def lonlat_distance(a, b):
     return distance
 
 def calculate_spn(coords):
-    meters_to_degree_factor = 50 / (111 * 1000)
+    meters_to_degree_factor = 50 * 2 / (111 * 1000)
     return meters_to_degree_factor / math.cos(math.radians(coords[1])), meters_to_degree_factor

@@ -96,7 +96,10 @@ class FirstForm(QMainWindow):
     def show_map(self):
         image = nigga.give_me_an_image(self.edit.text(), self.edit2.text(), self.layer_type,
                                        point=self.point)
-        self.label.setPixmap(QPixmap(image))
+
+        pixmap = QPixmap()
+        pixmap.loadFromData(image)
+        self.label.setPixmap(pixmap)
         self.label.resize(self.label.sizeHint())
 
     def keyPressEvent(self, event):
