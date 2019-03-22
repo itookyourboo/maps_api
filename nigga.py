@@ -3,6 +3,8 @@ import os
 import sys
 
 
+# TODO: больше приказаний
+
 def give_me_an_image(coords, zoom, layer_type, point=None):
     response = None
     try:

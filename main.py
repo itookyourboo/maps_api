@@ -12,10 +12,13 @@ import os
 class FirstForm(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.window_size = (600, 600)
+        self.map_pos = (0, 140)
+        self.map_size = (600, 450)
         self.layer_type = 'map'
         self.point = None
 
-        self.setGeometry(300, 300, 600, 600)
+        self.setGeometry(300, 300, *self.window_size)
         self.setWindowTitle('maps api')
 
         self.menubar = QtWidgets.QMenuBar(self)
@@ -86,7 +89,7 @@ class FirstForm(QMainWindow):
         self.address.setText("")
 
         self.label = QLabel(self)
-        self.label.move(0, 140)
+        self.label.move(*self.map_pos)
 
     def show_map(self):
         image = nigga.give_me_an_image(self.edit.text(), self.edit2.text(), self.layer_type,
@@ -102,6 +105,7 @@ class FirstForm(QMainWindow):
         else:
             z = float(self.edit2.text())
             x, y = map(float, self.edit.text().split(','))
+            # TODO: вынести эти константы
             if event.key() == Qt.Key_S:
                 y = max(-85, y - 178.25792 / (2 ** (z - 1)))
             elif event.key() == Qt.Key_W:
@@ -114,6 +118,23 @@ class FirstForm(QMainWindow):
                 return
             self.edit.setText(f'{x},{y}')
         self.show_map()
+
+    def mousePressEvent(self, event):
+        x, y = event.x(), event.y()
+        if not (self.map_pos[0] <= x <= self.map_pos[0] + self.map_size[0]) or \
+                not (self.map_pos[1] <= y <= self.map_pos[1] + self.map_size[1]):
+            return
+        if event.buttons() == QtCore.Qt.LeftButton:
+            z = self.get_zoom()
+            # TODO: вот тут тоже
+            x_k = (422.4 / (2 ** (z - 1))) / self.map_size[0]
+            y_k = (178.25792 / (2 ** (z - 1))) / self.map_size[1]
+
+            x = self.map_pos[0] + x - self.map_size[0] / 2
+            y = self.map_pos[1] - y + self.map_size[1] / 2
+            lat, lon = self.get_lonlat()
+            lat, lon = lat + x * x_k, lon + y * y_k
+            print(nigga.find_object(f'{lat},{lon}'))
 
     def display_address(self):
         if self.cb.isChecked() and self.index_text:
@@ -140,6 +161,12 @@ class FirstForm(QMainWindow):
         self.address.setText("")
         self.address_text = self.index_text = ''
         self.show_map()
+
+    def get_zoom(self):
+        return int(self.edit2.text())
+
+    def get_lonlat(self):
+        return tuple(map(float, self.edit.text().split(',')))
 
 
 if __name__ == '__main__':
