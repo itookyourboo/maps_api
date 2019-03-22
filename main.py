@@ -126,7 +126,7 @@ class FirstForm(QMainWindow):
         if not (self.map_pos[0] <= x <= self.map_pos[0] + self.map_size[0]) or \
                 not (self.map_pos[1] <= y <= self.map_pos[1] + self.map_size[1]):
             return
-        if event.buttons() == QtCore.Qt.LeftButton:
+        if event.buttons() in [QtCore.Qt.LeftButton, QtCore.Qt.RightButton]:
             z = self.get_zoom()
             scale = (2 ** (z - 1))
             x_k = (X_RATIO / scale) / self.map_size[0]
@@ -137,7 +137,7 @@ class FirstForm(QMainWindow):
             lat, lon = self.get_lonlat()
             lat, lon = lat + x * x_k, lon + y * y_k
             self.edit3.setText(f'{lat},{lon}')
-            self.search()
+            self.search(org=(event.buttons() == QtCore.Qt.RightButton))
 
     def display_address(self):
         if self.cb.isChecked() and self.index_text:
@@ -150,10 +150,14 @@ class FirstForm(QMainWindow):
         self.layer_type = type
         self.show_map()
 
-    def search(self):
+    def search(self, org=False):
         search = self.edit3.text()
-        coords, self.address_text, self.index_text = nigga.find_object(search)
-        self.point = coords
+        if org:
+            coords, self.address_text, self.index_text = *nigga.find_orginization(search), ''
+        else:
+            coords, self.address_text, self.index_text = nigga.find_object(search)
+        if coords:
+            self.point = coords
         if self.sender() is not None:
             self.edit.setText(coords)
         self.display_address()
