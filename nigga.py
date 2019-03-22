@@ -45,7 +45,6 @@ def find_object(object):
     payload = {
         "geocode": object,
         "format": "json",
-        'z': '0'
     }
     response = requests.get(url, params=payload).json()
     toponym = response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]

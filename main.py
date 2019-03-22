@@ -8,6 +8,8 @@ from PyQt5.QtCore import Qt
 import nigga
 import os
 
+Y_RATIO, X_RATIO = 178.25792, 422.4
+
 
 class FirstForm(QMainWindow):
     def __init__(self):
@@ -105,15 +107,15 @@ class FirstForm(QMainWindow):
         else:
             z = float(self.edit2.text())
             x, y = map(float, self.edit.text().split(','))
-            # TODO: вынести эти константы
+            scale = (2 ** (z - 1))
             if event.key() == Qt.Key_S:
-                y = max(-85, y - 178.25792 / (2 ** (z - 1)))
+                y = max(-85, y - Y_RATIO / scale)
             elif event.key() == Qt.Key_W:
-                y = min(85, y + 178.25792 / (2 ** (z - 1)))
+                y = min(85, y + Y_RATIO / scale)
             elif event.key() == Qt.Key_A:
-                x = max(-180, x - 422.4 / (2 ** (z - 1)))
+                x = max(-180, x - X_RATIO / scale)
             elif event.key() == Qt.Key_D:
-                x = min(180, x + 422.4 / (2 ** (z - 1)))
+                x = min(180, x + X_RATIO / scale)
             else:
                 return
             self.edit.setText(f'{x},{y}')
@@ -126,15 +128,16 @@ class FirstForm(QMainWindow):
             return
         if event.buttons() == QtCore.Qt.LeftButton:
             z = self.get_zoom()
-            # TODO: вот тут тоже
-            x_k = (422.4 / (2 ** (z - 1))) / self.map_size[0]
-            y_k = (178.25792 / (2 ** (z - 1))) / self.map_size[1]
+            scale = (2 ** (z - 1))
+            x_k = (X_RATIO / scale) / self.map_size[0]
+            y_k = (Y_RATIO / scale) / self.map_size[1]
 
             x = self.map_pos[0] + x - self.map_size[0] / 2
             y = self.map_pos[1] - y + self.map_size[1] / 2
             lat, lon = self.get_lonlat()
             lat, lon = lat + x * x_k, lon + y * y_k
-            print(nigga.find_object(f'{lat},{lon}'))
+            self.edit3.setText(f'{lat},{lon}')
+            self.search()
 
     def display_address(self):
         if self.cb.isChecked() and self.index_text:
@@ -151,7 +154,8 @@ class FirstForm(QMainWindow):
         search = self.edit3.text()
         coords, self.address_text, self.index_text = nigga.find_object(search)
         self.point = coords
-        self.edit.setText(coords)
+        if self.sender() is not None:
+            self.edit.setText(coords)
         self.display_address()
         self.show_map()
 
